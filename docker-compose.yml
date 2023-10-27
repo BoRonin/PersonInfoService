@@ -1,0 +1,44 @@
+version: '3'
+services:
+    api-service:
+        build:
+            context: ./backend
+            dockerfile: ./docker-backend.dockerfile
+        volumes:
+            - ./backend:/app
+        ports:
+            -   "3001:3000"
+        deploy:
+            mode: replicated
+            replicas: 1 
+        depends_on:
+            -   postgres
+            -   redis
+        networks:
+            - emtest
+
+    postgres:
+        image: 'postgres:16.0'
+        ports:
+            -   "3004:5432"
+        restart: always
+        deploy:
+            mode: replicated
+            replicas: 1
+        environment:
+            POSTGRES_USER: emtest
+            POSTGRES_PASSWORD: emtest
+            POSTGRES_DB: emtest
+        volumes:
+            -   ./db-data/postgres/:/var/lib/postgresql/data/
+        networks:
+            - emtest
+
+    redis:
+        image: redis:latest
+        restart: always
+        networks:
+            - emtest
+networks:
+    emtest:
+        
